@@ -1,7 +1,7 @@
 clc, clear; close all
 %% Part 1. Load Images and Fourier Transform
 global X; global Y; global N;
-X = imread('X.bmp'); Y = imread('Y.bmp');
+X = imread('./img/X.bmp'); Y = imread('./img/Y.bmp');
 N = size(X,1);
 
 % Fourier Transform
