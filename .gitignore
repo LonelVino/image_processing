@@ -1,4 +1,7 @@
 TD/img
 TP/appr
+TP_python/appr
 *.ipynb
-
+.ipynb_checkpoints
+.vscode
+__pycache__
