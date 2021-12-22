@@ -14,7 +14,7 @@ def pad_vector(vector, how, depth, constant_value=0):
         constant_value (int): signifies black color and 0 is the default value.
     Returns
     -------------
-        pv (2d-array): images after adding padding
+        pad_image (2d-array): images after adding padding
     '''
     vect_shape = vector.shape[:2]
     depth = int(depth)
@@ -32,7 +32,8 @@ def pad_vector(vector, how, depth, constant_value=0):
         pv = np.hstack(tup=(vector, pp))
     else:
         return vector
-    return pv
+    pad_image = pv[:vect_shape[0], :vect_shape[1]]
+    return pad_image
 
 def y_shifter(vect, y, y_):
     if (y > 0):

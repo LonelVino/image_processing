@@ -6,6 +6,7 @@ import numpy as np
 import pickle
 import math
 import random
+from tqdm import tqdm
 
 # load reference images
 def load_dir_images(dir_name, img_type):
@@ -34,9 +35,9 @@ def save_images(images, dir_name, base_names, suffix=None, img_type='png'):
     if not CHECK_FOLDER:
         os.makedirs(dir_name)
     # Save images in target directory
-    for idx, img in enumerate(images):
-        file_path = os.path.join('./', dir_name, '/', base_names[idx], '_', suffix, '.', img_type)
-        cv2.imwrite(file_path, img)
+    for idx, img in tqdm(enumerate(images)):
+        file_path = os.path.join(dir_name + base_names[idx][7:-4] + suffix + '.' + img_type)
+        cv2.imwrite(file_path, img.astype(np.uint8))
 
 
 def disp_multi_images(images, suptitle=''):

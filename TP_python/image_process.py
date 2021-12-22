@@ -29,6 +29,7 @@ class PreProcessing:
         return images_c
     
     def FFT(self, images, filter=None, filter_size=None):
+        print(np.shape(images))
         images_size = np.shape(images)
         img_ffts = np.zeros(np.shape(images) + (2,), np.uint8)
         img_ffts_log = np.zeros_like(images)
@@ -83,7 +84,7 @@ class PreProcessing:
             x_align, y_align = center[0] - cx, center[1] - cy
             img_shifted = translate_img(img, (x_align, y_align), with_plot=False)
             images_centralized.append(img_shifted)
-        return images_centralized
+        return np.array(images_centralized)
             
 
 def image_random_transform(image):
