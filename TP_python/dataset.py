@@ -19,19 +19,26 @@ def load_dataset(images, labels):
         - target_names (list): The names of target classes.
         - images (ndarray): The raw image data of shape (num_samples, img_width, img_height)
         - DESCR (str):The full description of the dataset.
+        - filenames (ndarray): List of filename of all images
     '''
-    data = np.empty(0)
+    
     target = np.empty(0)
     feature_names = np.empty(0)
+    filenames = np.array(list(images.keys()))
     target_names = np.unique(list(labels.values()))
     data_images = np.array(list(images.values()))
+    data = np.empty(np.shape(data_images[0])[0]*np.shape(data_images[0])[1])
     DESCR = 'Images transformed based on 6 reference samples'
     for filename, img in images.items():
-        np.append(target, labels[filename])
-        np.append(data, img.flatten())
+        data = np.vstack((data, img.flatten()))
+        target = np.append(target, labels[filename])
+    data = np.delete(data, 1, 0)
     for i in range(np.shape(data_images[0])[0]):
         base = 'pixel_' + str(i) + '-'
         for j in range(np.shape(data_images[0])[1]):
-            np.append(feature_names, base + str(j))
+            feature_names = np.append(feature_names, base + str(j))
     dataset = Bunch(data=data, target=target, feature_names=feature_names,\
-                    target_names=target_names, images=data_images, DESCR=DESCR)
+                    target_names=target_names, images=data_images, DESCR=DESCR, \
+                    filenames = filenames)
+                    
+    return dataset

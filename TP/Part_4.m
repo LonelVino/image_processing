@@ -71,7 +71,5 @@ function resize_B = resize_boundary(B_rebuild, boundary)
     re_B_centroid = [mean(B_rebuild(:,1)) mean(B_rebuild(:,2))]; B_centroid = [mean(boundary(:,1))  mean(boundary(:,2))];
     disp_dist = B_centroid - re_B_centroid;
     resize_B(:,1) = B_rebuild(:,1) + disp_dist(1); resize_B(:,2) = B_rebuild(:,2) + disp_dist(2); 
-    
-    
 end
 
