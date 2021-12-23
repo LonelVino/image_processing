@@ -1,6 +1,4 @@
-TD/img
-TP/appr
-TP_python/appr
+appr/*.*
 *.ipynb
 .ipynb_checkpoints
 .vscode
