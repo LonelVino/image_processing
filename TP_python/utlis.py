@@ -8,8 +8,9 @@ import math
 import random
 from tqdm import tqdm
 
+
 # load reference images
-def load_dir_images(dir_name, img_type):
+def load_dir_images(dir_name, img_type, grayscale=False):
     '''
     Load all images in a folder
     
@@ -24,23 +25,30 @@ def load_dir_images(dir_name, img_type):
     '''
     img_dict = {}
     for filename in Path(dir_name).glob('*.'+img_type):
-        img_dict[str(filename)] = cv2.imread(str(filename))
+        img = cv2.imread(str(filename))
+        if grayscale:
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        img_dict[str(filename)] = img
     return img_dict
 
 
-def save_images(images, dir_name, base_names, suffix=None, img_type='png'):
-    suffix = '_' + suffix if suffix is not None else suffix
+def save_images(images, dir_name, base_names, img_type='png', clear_cache=False):
     CHECK_FOLDER = os.path.isdir(dir_name)
     # If folder doesn't exist, then create it.
     if not CHECK_FOLDER:
         os.makedirs(dir_name)
-    # Save images in target directory
+    elif clear_cache is True:
+        # delete all images
+        for f in Path(dir_name).glob("*.*"):
+            os.remove(f)
+            
+    # Save images in target directory    
     for idx, img in tqdm(enumerate(images)):
-        file_path = os.path.join(dir_name + base_names[idx][7:-4] + suffix + '.' + img_type)
+        file_path = os.path.join(dir_name + base_names[idx][:-4] + '.' + img_type)
         cv2.imwrite(file_path, img.astype(np.uint8))
 
 
-def disp_multi_images(images, suptitle=''):
+def disp_multi_images(images, labels=None, suptitle=''):
     ''' Visualize images    
     Args:
         images (np.darray): the  images
@@ -56,11 +64,18 @@ def disp_multi_images(images, suptitle=''):
         ax = fig.add_subplot(num, num, count + 1, xticks=[], yticks=[])
         image = images[index]
         ax.imshow(image, cmap='gray')
+        if labels is not None:
+            ax.set_title('Class {%s}'%labels[index])
         
         if count==len_images-1:
             plt.show()
             break    
 
+def save_dict(dict_, path):
+    a_file = open(path, "wb")
+    pickle.dump(dict_, a_file)
+    
+    
 def view_dir_images(dir_name='appr', type_image_train='png'):
     img_train_dict = load_dir_images(dir_name = './'+dir_name, img_type=type_image_train)
     img_train_names = list(img_train_dict.keys())

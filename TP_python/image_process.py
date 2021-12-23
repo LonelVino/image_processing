@@ -29,7 +29,6 @@ class PreProcessing:
         return images_c
     
     def FFT(self, images, filter=None, filter_size=None):
-        print(np.shape(images))
         images_size = np.shape(images)
         img_ffts = np.zeros(np.shape(images) + (2,), np.uint8)
         img_ffts_log = np.zeros_like(images)

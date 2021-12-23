@@ -6,3 +6,4 @@ TP_python/appr
 .vscode
 __pycache__
 test.py
+*.zip

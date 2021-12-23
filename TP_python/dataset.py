@@ -1,5 +1,6 @@
 from sklearn.utils import Bunch
 import numpy as np
+from tqdm import tqdm
 
 def load_dataset(images, labels):
     '''
@@ -29,7 +30,8 @@ def load_dataset(images, labels):
     data_images = np.array(list(images.values()))
     data = np.empty(np.shape(data_images[0])[0]*np.shape(data_images[0])[1])
     DESCR = 'Images transformed based on 6 reference samples'
-    for filename, img in images.items():
+    
+    for filename, img in tqdm(images.items()):
         data = np.vstack((data, img.flatten()))
         target = np.append(target, labels[filename])
     data = np.delete(data, 1, 0)
