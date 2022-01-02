@@ -29,11 +29,11 @@ def gene_train_images(ref='reference', train='appr/origin', type_image_ref='bmp'
         os.makedirs(train)
     else:
         # delete all images
-        for f in Path('./'+train).glob("*.*"):
+        for f in Path(train).glob("*.*"):
             os.remove(f)
     
     # load reference images
-    img_ref_dict = load_dir_images(dir_name = './'+ref, img_type=type_image_ref)
+    img_ref_dict = load_dir_images(dir_name = ref, img_type=type_image_ref)
     img_ref_names = list(img_ref_dict.keys())
     
     # Generate N training images based on all the reference images by selecting randomly
@@ -48,10 +48,10 @@ def gene_train_images(ref='reference', train='appr/origin', type_image_ref='bmp'
         labels[key] = int(ref_filename[-7])
         
         # save the rotated image to disk
-        filename = './{:s}/mesure{:04d}.{:s}'.format(train, i+1, type_image_train)
+        filename = '{:s}/mesure{:04d}.{:s}'.format(train, i+1, type_image_train)
         cv2.imwrite(filename, image_transformed)
         
-    a_file = open("./{:s}/labels.pkl".format(train), "wb")
+    a_file = open("{:s}/labels.pkl".format(train), "wb")
     pickle.dump(labels, a_file)
     a_file.close()
         
@@ -60,16 +60,17 @@ def gene_train_images(ref='reference', train='appr/origin', type_image_ref='bmp'
     return dataset 
 
 
-def load_files_to_dataset(img_path='appr/origin',  type_image_train='png', label_path='appr/origin', label_filename='labels.pkl'):
+def load_files_to_dataset(img_path='appr/origin',  type_image_train='png', label_path='appr/origin', label_filename='labels.pkl', max_num=None):
     print('[INFO] Loading Resource Files....... (this may take some time)')
-    labels_file = open('./{:s}/{:s}'.format(label_path, label_filename), "rb")
+    labels_file = open('{:s}/{:s}'.format(label_path, label_filename), "rb")
     labels = pickle.load(labels_file)
-    images = load_dir_images(dir_name = './'+img_path, img_type=type_image_train, grayscale=True)
+    images = load_dir_images(dir_name = img_path, img_type=type_image_train, grayscale=True, N=max_num)
     slice_keys = [w[-14:] for w in list(images.keys())]
     new_images = dict(zip(slice_keys, list(images.values())))
     
     print('[INFO] Generating Dataset.......')
     dataset = load_dataset(new_images, labels)
+    print('[INFO] Loading Done!')
     return dataset
 
 if __name__ == '__main__':

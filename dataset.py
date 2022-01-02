@@ -35,7 +35,7 @@ def load_dataset(images, labels):
         data = np.vstack((data, img.flatten()))
         target = np.append(target, labels[filename])
     data = np.delete(data, 1, 0)
-    for i in range(np.shape(data_images[0])[0]):
+    for i in tqdm(range(np.shape(data_images[0])[0])):
         base = 'pixel_' + str(i) + '-'
         for j in range(np.shape(data_images[0])[1]):
             feature_names = np.append(feature_names, base + str(j))

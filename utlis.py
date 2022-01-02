@@ -10,7 +10,7 @@ from tqdm import tqdm
 
 
 # load reference images
-def load_dir_images(dir_name, img_type, grayscale=False):
+def load_dir_images(dir_name, img_type, grayscale=False, N=None):
     '''
     Load all images in a folder
     
@@ -24,11 +24,15 @@ def load_dir_images(dir_name, img_type, grayscale=False):
     img_dict (dict): all images in the target folder (key: filename, value: image (ndarray))
     '''
     img_dict = {}
+    idx = 0
     for filename in Path(dir_name).glob('*.'+img_type):
         img = cv2.imread(str(filename))
         if grayscale:
             img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         img_dict[str(filename)] = img
+        idx += 1
+        if N is not None:
+            if idx >= N: break
     return img_dict
 
 
