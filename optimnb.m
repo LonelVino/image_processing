@@ -7,8 +7,8 @@
 
 function [X,map]=optimnb(nom,niveau)
 
-[ima,racine]=lireimagenb(nom);
-racine = strcat('.\img\', racine);
+[ima,racine]=lireimagenb(nom)
+% racine = strcat('.\img\', racine);
 disp(racine)
 figure,image(ima),axis equal,colormap(gray(256)),drawnow
 
@@ -18,7 +18,7 @@ fclose(fid);
 
 dos(['scalaire -e' racine 'ent.ima -s' racine 'sor.ima -N' int2str(niveau)]);
 
-fid = fopen([' racine 'sor.ima'], 'rb');
+fid = fopen([racine 'sor.ima'], 'rb');
 X=uint8(fread(fid,size(ima),'uint8'));
 fclose(fid);
 

@@ -2,21 +2,21 @@
 % prise en compte de la correction de gamma
 % ligne de commande :
 % [X,map]=propagation_g(nom,niveau)
-% nom : nom du fichier image
-% niveau : nombre de niveaux de restitution
+% name : filename of the image
+% niveau: level of restitution
+% gamma: gamma value
 % X : image d'index
 % map : palette
 
-function [X,map]=propagation_g(nom,niveau)
+function [X,map]=propagation_g(nom,niveau,gamma)
 niveau=niveau-1;
-gamma=2.2;
 X=lireimagenb(nom);
-set(figure,...
-'MenuBar','none',...
-'NumberTitle','off',...
-'Name','Image initiale')
-imshow(uint8(X)),zoom on
-drawnow
+% set(figure,...
+% 'MenuBar','none',...
+% 'NumberTitle','off',...
+% 'Name','Image initiale')
+% imshow(uint8(X)),zoom on
+% drawnow
 
 I=X/255;
 clear X;
@@ -58,12 +58,12 @@ for n=0:255
     end
 end
 
-set(figure,...
-'MenuBar','none',...
-'NumberTitle','off',...
-'Name','Image codée')
-imshow(X,map),zoom on
-drawnow
+% set(figure,...
+% 'MenuBar','none',...
+% 'NumberTitle','off',...
+% 'Name','Image codï¿½e')
+% imshow(X,map),zoom on
+% drawnow
 
 function X=lireimagenb(nom)
 extension=nom(strfind(nom,'.')+1:end);
