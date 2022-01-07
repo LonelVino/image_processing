@@ -28,21 +28,53 @@ from sklearn.utils.fixes import loguniform
 from sklearn import metrics
 from sklearn.metrics import classification_report, ConfusionMatrixDisplay, PrecisionRecallDisplay, confusion_matrix
 
-import argparse
-parser = argparse.ArgumentParser(description='Image Classification.')
-parser.add_argument('methods', metavar='M', type=str, nargs='+',
-                    choices=['KNN', 'KMeans', 'SVM'], help='Classifier')
+from argparse import ArgumentParser, RawTextHelpFormatter, ArgumentTypeError
+def str2bool(v):
+    if isinstance(v, bool):
+        return v
+    if v.lower() in ('yes', 'true', 't', 'y', '1'):
+        return True
+    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+        return False
+    else:
+        raise ArgumentTypeError('Boolean value expected.')
+
+
+parser = ArgumentParser(description="Image Classification.", formatter_class=RawTextHelpFormatter)
+parser.add_argument('-M','--methods', metavar='Methods', type=str, nargs='+',
+                    choices=['KNN', 'KMeans', 'SVM'], help='Classifier', 
+                    required=False, default = "KNN")
+
+parser.add_argument('-N', '--num', metavar='Number', type=int, nargs='?',
+                    help='Number of Training Images', 
+                    required=False, default = 500)
+
+parser.add_argument('-PN', '--pca_n', metavar='Number', type=int, nargs='?',
+                    help='Number of PCA Components', 
+                    required=False, default = 13)
+
+parser.add_argument('-P', '--pca', metavar='BOOLEAN', type=str2bool, nargs='?',
+                    required=False, default = False,
+                    help="Find Best Number of Components of PCA")
+
+parser.add_argument('-K', '--kmeans', metavar='BOOLEAN', type=str2bool, nargs='?',
+                    help='Find Best Number of clusters of KMeans\n'
+                        "(Expected Boolean Value:\n" 
+                        "'yes', 'true', 't', 'y', '1'\n" 
+                        "'no', 'false', 'f', 'n', '0')" , 
+                    required=False, default = False)
 
 args = parser.parse_args()
-methods = args.methods
+methods = args.methods; train_num = args.num; pca_n = args.pca_n
+find_pca = args.pca; find_kmeans = args.kmeans
 
-#### ============== 1.1 Images Loading and Tansformation===============
+# %% ============== 1. Images Loading and Tansformation===============
 print('\n============== 1. Images Loading and Tansformation===============')
 
 print('\n[INFO] Loading Train Set.....')
 train_set = load_files_to_dataset(img_path='appr/fft',  type_image_train='png', 
     label_path='appr/fft', label_filename='labels.pkl',
-    max_num=500)
+    max_num=train_num)
 
 images = train_set.images; data = train_set.data
 target = train_set.target; target_names = train_set.target_names
@@ -51,7 +83,6 @@ n_samples, h, w = np.shape(images)
 n_classes = target_names.shape[0]
 n_features = features.shape[0]
 
-print('_'*80)
 print('SIZE\t\tTYPE\t  NUMBER of samples\tNUMBER of features\tNUMBER of classes')
 print("({:d}, {:d})\t{:9s}\t{:4d}\t\t{:14d}\t{:14d}".\
     format(h, w, str(data[0].dtype), n_samples, n_features, n_classes))
@@ -69,7 +100,6 @@ n_samples_test, h_test, w_test = np.shape(images_test)
 n_classes_test = target_names_test.shape[0]
 n_features_test = features_test.shape[0]
 
-print('_'*80)
 print('SIZE\t\tTYPE\t  NUMBER of samples\tNUMBER of features\tNUMBER of classes')
 print("({:d}, {:d})\t{:9s}\t{:4d}\t\t{:14d}\t{:14d}".\
     format(h_test, w_test, str(data_test[0].dtype), n_samples_test, 
@@ -84,7 +114,7 @@ test_set_og = load_files_to_dataset(img_path='test/test/origin', type_image_trai
                 max_num=500)
 
 
-### ================= 1.2 Pre-Processing ====================
+# %% ================= 2. Pre-Processing ====================
 print('\n================= 2. Pre-Processing ================')
 # Remove INF and NaN value
 inf_idx = np.where(np.isinf(np.linalg.norm(data,axis=1)))[0]
@@ -112,6 +142,7 @@ images_test_og = np.delete(test_set_og.images, inf_idx, axis=0)
 target_test_og = np.delete(test_set_og.target, inf_idx, axis=0)
 filenames_test_og = np.delete(test_set_og.filenames, inf_idx, axis=0)
 
+print('_'*80)
 # Scaling data
 data = np.nan_to_num(data, nan=0.0, posinf=255.0, neginf=0.0)
 X_train, X_val, y_train, y_val = train_test_split(  # Split into training and test
@@ -127,7 +158,7 @@ scaler_test = StandardScaler() # Scale Data
 data_test = scaler_test.fit_transform(data_test)
 
 
-
+# %%================= 3.PCA + CLF  ====================
 # Define SVC
 cv=StratifiedKFold(n_splits=5)
 param_grid_SVC = {
@@ -154,23 +185,24 @@ clf_KNN = RandomizedSearchCV(
     cv=cv, 
 )
 
+kmeans_results, best_clusters = find_best_clusters(X_train, X_val, y_train, y_val) if find_kmeans else [], 275
 param_grid_KMeans = {
     "n_init": np.arange(5,10),
     "random_state": [0,6,8,42,43,2001]
 }
 clf_KMeans = RandomizedSearchCV(
-    KMeans(init="k-means++", n_clusters=275, max_iter=300, tol=0.0001, verbose=0), 
+    KMeans(init="k-means++", n_clusters=best_clusters, max_iter=300, tol=0.0001, verbose=0), 
     param_grid_KMeans, n_iter=10, refit=True, scoring='accuracy', cv=cv
 )
 
 # Train classifier
-def train_pca_clf(clf, is_KMeans=False):
-    # print('\n[INFO] Find best n components (highest accuracy and less components)')
-    # n_components = np.unique(np.logspace(1.0,8.0, num=50, base=2.0).astype(int))
-    # pca_results, max_n = find_best_n_PCA(clf, X_train, X_val, y_train, y_val, n_components=n_components, clf_name='SVC')
-    max_n = 13
-    print("\n[INFO]  Extracting the top %d eigenvalues from %d samples" % (max_n, X_train.shape[0]))
-    pca = PCA(n_components=max_n, svd_solver="randomized", whiten=True).fit(X_train)
+def train_pca_clf(clf, pca_n, is_KMeans=False):
+    if find_pca:
+        print('\n[INFO] Find best n components (highest accuracy and less components)')
+        n_components = np.unique(np.logspace(1.0,8.0, num=50, base=2.0).astype(int))
+        pca_results, pca_n = find_best_n_PCA(clf, X_train, X_val, y_train, y_val, n_components=n_components, clf_name='SVC')
+    print("\n[INFO]  Extracting the top %d eigenvalues from %d samples" % (pca_n, X_train.shape[0]))
+    pca = PCA(n_components=pca_n, svd_solver="randomized", whiten=True).fit(X_train)
 
     print("\n[INFO]  Projecting the input data on the eigen orthonormal basis")
     X_train_pca = pca.transform(X_train)
@@ -184,17 +216,19 @@ def train_pca_clf(clf, is_KMeans=False):
     print("_"*80)
 
     print("\n[INFO]  Predicting symbols on the test set")
+    
+    y_pred = clf.predict(X_val_pca)
     if is_KMeans:
-        y_pred = clf.predict(X_val_pca)
         # convert cluster labels into true class labels
         reference_labels = retrieve_info(y_pred, y_val.astype(int))  # cluster labels
-        predict_labels = list(map(lambda x: reference_labels[x], y_pred))  # true predict labels
+        predict_labels = np.array(list(map(lambda x: reference_labels[x], y_pred)))  # true predict labels
         return pca, clf, y_pred, reference_labels, predict_labels
     else: 
-        y_pred = clf.predict(X_val_pca)
         y_prob_pred = clf.predict_proba(X_val_pca)
-    return pca, clf, y_pred, y_prob_pred
+        return pca, clf, y_pred, y_prob_pred
 
+
+# %% ================= 4. Evaluation ====================
 def pred_eval_test(pca, clf, y_pred, y_prob_pred, clf_name='clf'):
     print('================ Evaluate on Validation data ================')
     eval_val = Evaluate(y_val, y_pred, y_prob_pred, n_classes, target_names,
@@ -220,26 +254,28 @@ def pred_eval_test_KMeans(pca_KMeans, clf_KMeans, y_pred_KMeans, predict_labels)
     y_test_pred = clf_KMeans.predict(data_test_pca) # classify
     # convert cluster labels into true class labels
     reference_labels_test = retrieve_info(y_test_pred, target_test.astype(int))  # cluster labels
-    predict_labels_test = list(map(lambda x: reference_labels_test[x], y_test_pred))  # true predict labels
+    predict_labels_test = np.array(list(map(lambda x: reference_labels_test[x], y_test_pred)))  # true predict labels
     eval_test = evaluate_KMeans(target_test, y_test_pred, predict_labels_test, target_names, mode='TEST')
     display_mis_images(target_test, predict_labels_test, filenames_test, images_test_og, target_test_og, filenames_test_og)
     plt.show()
     return y_test_pred, eval_val, eval_test
 
+
+# %% ================= 5. Main Program ====================
 ### ================== PCA + CLF ========================
 if 'SVC' in methods:
     print('\n================ 3. PCA + SVC ================')
-    pca_SVC, clf_SVC, y_pred_SVC, y_prob_pred_SVC = train_pca_clf(clf_SVC)
+    pca_SVC, clf_SVC, y_pred_SVC, y_prob_pred_SVC = train_pca_clf(clf_SVC, pca_n)
     y_test_pred_SVC, eval_val, eval_test = pred_eval_test(pca_SVC, clf_SVC, 
                 y_pred_SVC, y_prob_pred_SVC, clf_name='SVC')
 if 'KNN' in methods:
     print('\n================ 4. PCA + KNN ================')
-    pca_KNN, clf_KNN, y_pred_KNN, y_prob_pred_KNN = train_pca_clf(clf_KNN)
+    pca_KNN, clf_KNN, y_pred_KNN, y_prob_pred_KNN = train_pca_clf(clf_KNN, pca_n)
     y_test_pred_KNN, eval_val, eval_test = pred_eval_test(pca_KNN, clf_KNN, 
                 y_pred_KNN, y_prob_pred_KNN, clf_name='KNN')
 if 'KMeans' in methods:
     print('\n================ 5. PCA + KMeans ================')
-    pca_KMeans, clf_KMeans, y_pred_KMeans, reference_labels, predict_labels = train_pca_clf(clf_KMeans, is_KMeans=True)
+    pca_KMeans, clf_KMeans, y_pred_KMeans, reference_labels, predict_labels = train_pca_clf(clf_KMeans, pca_n, is_KMeans=True)
     y_test_pred_KMeans, eval_val, eval_test = pred_eval_test_KMeans(
         pca_KMeans, clf_KMeans, y_pred_KMeans, predict_labels
     )

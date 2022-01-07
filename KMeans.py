@@ -68,7 +68,7 @@ def bench_kmeans(clf, clf_name, X_train, X_val, y_train, y_val):
         "{:5s}\t{:.3f}\t{:.3f}\t{:3f}\t{:.3f}\t{:.3f}\t{:.3f}\t{:.3f}\t{:.3f}"
     )
     print(formatter_result.format(*results))
-    
+    return results
     
 def find_best_clusters(X_train, X_val, y_train, y_val):
     print(92 * "_")
@@ -76,7 +76,7 @@ def find_best_clusters(X_train, X_val, y_train, y_val):
 
     kmeans = {}
     all_results = np.array([])
-    num_clusters = list(range(3,20)) + list(range(20,60,5)) + list(range(50,350,10)) + list(range(350,500,25))
+    num_clusters = list(range(4,20,2)) + list(range(20,60,4)) + list(range(50,min(500, len(X_train)),20))
     for num in num_clusters:
         kmeans_name = 'kmeans_'+str(num)
         kmeans[kmeans_name] = KMeans(init="k-means++", n_clusters=num, random_state=43, max_iter=300,
@@ -84,6 +84,7 @@ def find_best_clusters(X_train, X_val, y_train, y_val):
         results = bench_kmeans(clf=kmeans[kmeans_name], clf_name=kmeans_name,
                     X_train=X_train, X_val=X_val, y_train=y_train, y_val=y_val)
         all_results = np.append(all_results, results)
+    print(all_results.shape)
     all_results = all_results.reshape(-1, 9)
     print(92 * "_")
     
@@ -97,5 +98,5 @@ def find_best_clusters(X_train, X_val, y_train, y_val):
     plt.axvline(x=max_n, color='red', ls='--')
     plt.text(max_n+2, min(accuracy), str(max_n), fontsize=16, color='red')
     # plt.savefig('best_n_PCA')
-    return all_results
+    return all_results, max_n
 

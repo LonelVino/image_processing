@@ -1,10 +1,15 @@
-appr/
+*.pyc
 *.ipynb
+
 .ipynb_checkpoints
 .vscode
 __pycache__
+
+appr/
 test/*.zip
 *.zip
+test/test/
+
 assets/data
 assets/img
-test/test/
+
