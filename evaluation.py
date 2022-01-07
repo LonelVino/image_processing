@@ -7,6 +7,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
+plt.rc('font', family='serif')
+plt.rc('xtick', labelsize='x-large')
+plt.rc('ytick', labelsize='x-large')
+plt.rc('axes', labelsize='x-large', titlesize='x-large')
+
 
 def Evaluate(y_test, y_pred, y_prob_pred, n_classes, target_names):
     print(classification_report(y_test, y_pred, target_names=target_names.astype(str)))
@@ -14,7 +19,7 @@ def Evaluate(y_test, y_pred, y_prob_pred, n_classes, target_names):
     disp = ConfusionMatrixDisplay(cm, display_labels=target_names)
     disp.plot()
     plt.tight_layout()  # Adjust the padding between and around subplots.
-    plt.savefig('assets/img/ConfusionMatrix(test).png', dpi=300); 
+    # plt.savefig('assets/img/ConfusionMatrix(test).png', dpi=300); 
     
     # Binarized Labels {0,1}
     lb = LabelBinarizer()
@@ -36,7 +41,6 @@ def Evaluate(y_test, y_pred, y_prob_pred, n_classes, target_names):
     ROC_score = cal_ROC_score(y_test, y_prob_pred, mode='ovo')
     plot_multiclass_ROC(y_test, y_prob_pred, n_classes)    
     
-    plt.show()
     results = {'precision': precision, 'recall': recall, 
                'average_precision': average_precision,
                'ROC_score': ROC_score}

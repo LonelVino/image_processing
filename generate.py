@@ -55,13 +55,13 @@ def gene_train_images(ref='reference', train='appr/origin', type_image_ref='bmp'
     pickle.dump(labels, a_file)
     a_file.close()
         
-    print('[INFO] Generating Dataset.......')
+    print('[INFO] Generating Dataset....... (This may take a while. Have a Coffee)')
     dataset = load_dataset(images, labels)
     return dataset 
 
 
 def load_files_to_dataset(img_path='appr/origin',  type_image_train='png', label_path='appr/origin', label_filename='labels.pkl', max_num=None):
-    print('[INFO] Loading Resource Files....... (this may take some time)')
+    print('[INFO] Loading Resource Files....... ')
     labels_file = open('{:s}/{:s}'.format(label_path, label_filename), "rb")
     labels = pickle.load(labels_file)
     images = load_dir_images(dir_name = img_path, img_type=type_image_train, grayscale=True, N=max_num)

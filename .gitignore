@@ -3,7 +3,8 @@ appr/
 .ipynb_checkpoints
 .vscode
 __pycache__
-test/*.*
+test/*.zip
 *.zip
 assets/data
 assets/img
+test/test/
