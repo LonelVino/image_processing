@@ -2,7 +2,7 @@
 
 ![](https://img.shields.io/badge/Python-v3.8-orange) ![](https://img.shields.io/badge/Ubuntu-E95420?style=for-the-badge&logo=ubuntu&logoColor=white)
 
-Based on [PCA](https://en.wikipedia.org/wiki/Principal_component_analysis), synthesize 3 classifier ([KNN](https://en.wikipedia.org/wiki/K-nearest_neighbors_algorithm), [KMeans](https://en.wikipedia.org/wiki/K-means_clustering), [SVM](https://en.wikipedia.org/wiki/Support-vector_machine)), with generating images set from the scratch, achieve high test accuracy: $95%$ of $KNN$, $93%$ of $KMeans$ and $97%$ of $SVM$.
+Based on [PCA](https://en.wikipedia.org/wiki/Principal_component_analysis), synthesize 3 classifier ([KNN](https://en.wikipedia.org/wiki/K-nearest_neighbors_algorithm), [KMeans](https://en.wikipedia.org/wiki/K-means_clustering), [SVM](https://en.wikipedia.org/wiki/Support-vector_machine)), with generating images set from the scratch, achieve high test accuracy: $95%$ of **KNN**, $93%$ of **KMeans** and $97%$ of **SVM**.
 
 ## Prerequisites
 
@@ -58,7 +58,34 @@ Optional Arguments:
 
 For example: `python3 classify.py -M KNN KMeans -N 5000 -PN 13 -P yes -K yes`
 
-By running the command above,   $5000$ images will be used to train $KMeans$ and $KNN$ , and then to classify $500$ test images, with finding the best number of components in $PCA$ and best number of clusters in $KMeans$.
+By running the command above,   $5000$ images will be used to train **KMeans** and **KNN** , and then to classify $500$ test images, with finding the best number of components in **PCA** and best number of clusters in **KMeans**.
+
+## Performance
+
+##### KNN
+
+The best *N* components of **PCA** with **KNN**,  and **Confusion Matrix**.
+
+<img src="assets/img/KNN/best_n_PCA_KNN.png" alt="ConfusionMatrix" style="zoom:85%;" /><img src="assets/img/KNN/ConfusionMatrix(test).png" alt="ConfusionMatrix" style="zoom:20%; margin-top:50px" />
+
+##### KMeans
+
+
+
+##### SVM
+
+Confusion Matrix of Validation Set(Left) and Test Set(Right)
+
+<img src="assets/img/SVM/SVM_30_fft.png" alt="ConfusionMatrix" style="zoom:85%;" /><img src="assets/img/SVM/SVM_150_origin.png" alt="ConfusionMatrix" style="zoom:85%;" />
+
+PRC curves (left) and ROC curves (right)
+
+<img src="/home/lonelvino/MyGit/image_processing/TP_python/assets/img/SVM/PRC_curves_zoom_in.png" alt="ROC_curves" style="zoom:50%;" /><img src="/home/lonelvino/MyGit/image_processing/TP_python/assets/img/SVM/ROC_curves.png" alt="ROC_curves" style="zoom:13%; " />
+
+**Misclassified Images:**
+
+<img src="/home/lonelvino/MyGit/image_processing/TP_python/assets/img/SVM/Misclassified Images (Test Set).png" alt="Misclassified Images (Test Set)" style="zoom:47%;" />
+
 
 ## File Structure
 
