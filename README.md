@@ -2,7 +2,7 @@
 
 ![](https://img.shields.io/badge/Python-v3.8-orange) ![](https://img.shields.io/badge/Ubuntu-E95420?style=for-the-badge&logo=ubuntu&logoColor=white)
 
-Based on [PCA](https://en.wikipedia.org/wiki/Principal_component_analysis), synthesize 3 classifier ([KNN](https://en.wikipedia.org/wiki/K-nearest_neighbors_algorithm), [KMeans](https://en.wikipedia.org/wiki/K-means_clustering), [SVM](https://en.wikipedia.org/wiki/Support-vector_machine)), with generating images set from the scratch, achieve high test accuracy: $95%$ of $\text{KNN}$, $93%$ of $\text{KMeans}$ and $97%$ of $\text{SVM}$.
+Based on [PCA](https://en.wikipedia.org/wiki/Principal_component_analysis), synthesize 3 classifier ([KNN](https://en.wikipedia.org/wiki/K-nearest_neighbors_algorithm), [KMeans](https://en.wikipedia.org/wiki/K-means_clustering), [SVM](https://en.wikipedia.org/wiki/Support-vector_machine)), with generating images set from the scratch, achieve high test accuracy: $95%$ of $KNN$, $93%$ of $KMeans$ and $97%$ of $SVM$.
 
 ## Prerequisites
 
@@ -58,7 +58,7 @@ Optional Arguments:
 
 For example: `python3 classify.py -M KNN KMeans -N 5000 -PN 13 -P yes -K yes`
 
-By running the command above,   $5000$ images will be used to train $\text{KMeans}$ and $\text{KNN}$ , and then to classify $500$ test images, with finding the best number of components in $\text{PCA}$ and best number of clusters in $\text{KMeans}$.
+By running the command above,   $5000$ images will be used to train $KMeans$ and $KNN$ , and then to classify $500$ test images, with finding the best number of components in $PCA$ and best number of clusters in $KMeans$.
 
 ## File Structure
 
