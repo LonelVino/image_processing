@@ -55,7 +55,7 @@ def bench_pcas(PCA, clf, pca_name, clf_name, X_train, X_val, y_train, y_val):
     print(formatter_result.format(*results))
     return results
 
-def find_best_n_PCA(clf, X_train, X_val, y_train, y_val,n_components, clf_name='clf'):
+def find_best_n_PCA(clf, X_train, X_val, y_train, y_val, n_components, clf_name='clf'):
     pcas = {}
     print(92 * "_")
     print("PCA\t\tClassifier\tpca_time(s)\tclf_time(s)\tAccuracy")

@@ -120,7 +120,7 @@ def display_mis_images(target_test, y_val_pred, filenames_test, images_test_og, 
     
     fig = plt.figure(figsize=(num**2,num**2)) if num > 3 else  plt.figure(figsize=((num+1)**2,(num+1)**2))
     plt.title("Misclassified images (True Label - Predicted Label)",  fontsize=16)
-    plt.tight_layout()
+    plt.subplots_adjust(bottom=0.2)
     for count, index in enumerate(idxs):
         ax = fig.add_subplot(num, num, count + 1, xticks=[], yticks=[])
         image = mis_images[count]

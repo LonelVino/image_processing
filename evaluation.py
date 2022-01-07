@@ -2,6 +2,7 @@ from sklearn.metrics import classification_report, ConfusionMatrixDisplay, Preci
 from sklearn.preprocessing import LabelBinarizer
 from sklearn.metrics import precision_recall_fscore_support, precision_recall_curve, average_precision_score
 from sklearn.metrics import roc_curve, roc_auc_score, auc
+from sklearn import metrics
 from itertools import cycle
 import matplotlib.pyplot as plt
 import numpy as np
@@ -13,11 +14,13 @@ plt.rc('ytick', labelsize='x-large')
 plt.rc('axes', labelsize='x-large', titlesize='x-large')
 
 
-def Evaluate(y_test, y_pred, y_prob_pred, n_classes, target_names):
+def Evaluate(y_test, y_pred, y_prob_pred, n_classes, target_names, mode='TEST', clf_name='clf'):
+    print('CLASSIFICATION REPORT ({:s}, {:s})'.format(mode, clf_name))
     print(classification_report(y_test, y_pred, target_names=target_names.astype(str)))
     cm = confusion_matrix(y_test, y_pred, labels=target_names)
     disp = ConfusionMatrixDisplay(cm, display_labels=target_names)
     disp.plot()
+    plt.title('Confusion Matrix ({:s}, {:s})'.format(mode, clf_name))
     plt.tight_layout()  # Adjust the padding between and around subplots.
     # plt.savefig('assets/img/ConfusionMatrix(test).png', dpi=300); 
     
@@ -127,3 +130,24 @@ def cal_ROC_score(y_test, y_prob_pred, mode='ovo'):
             y_test, y_prob_pred, multi_class="ovr", average="weighted"
         )
     return score
+
+
+
+def evaluate_KMeans(y_test, y_pred, predict_labels, target_names, mode='TEST'):
+    print('CLASSIFICATION REPORT ({:s}, KMeans)'.format(mode))
+    print(classification_report(y_test, predict_labels, target_names=target_names.astype(str)))
+    cm = metrics.confusion_matrix(y_test, predict_labels, labels=target_names)
+    disp = ConfusionMatrixDisplay(cm, display_labels=target_names)
+    disp.plot()
+    plt.tight_layout()  # Adjust the padding between and around subplots.
+    plt.show()
+    clustering_metrics = [
+        metrics.homogeneity_score,
+        metrics.completeness_score,
+        metrics.v_measure_score,
+        metrics.adjusted_rand_score,
+        metrics.adjusted_mutual_info_score,
+    ]
+    results = [m(y_test, y_pred) for m in clustering_metrics]
+    return results
+    
