@@ -78,13 +78,13 @@ Confusion Matrix of Validation Set(Left) and Test Set(Right)
 
 <img src="assets/img/SVM/SVM_30_fft.png" alt="ConfusionMatrix" style="zoom:85%;" /><img src="assets/img/SVM/SVM_150_origin.png" alt="ConfusionMatrix" style="zoom:85%;" />
 
-PRC curves (left) and ROC curves (right)
+**PRC** curves (left) and **ROC** curves (right)
 
-<img src="/home/lonelvino/MyGit/image_processing/TP_python/assets/img/SVM/PRC_curves_zoom_in.png" alt="ROC_curves" style="zoom:50%;" /><img src="/home/lonelvino/MyGit/image_processing/TP_python/assets/img/SVM/ROC_curves.png" alt="ROC_curves" style="zoom:13%; " />
+<img src="assets/img/SVM/PRC_curves_zoom_in.png" alt="ROC_curves" style="zoom:50%;" /><img src="assets/img/SVM/ROC_curves.png" alt="ROC_curves" style="zoom:13%; " />
 
 **Misclassified Images:**
 
-<img src="/home/lonelvino/MyGit/image_processing/TP_python/assets/img/SVM/Misclassified Images (Test Set).png" alt="Misclassified Images (Test Set)" style="zoom:47%;" />
+<img src="assets/img/SVM/Misclassified Images (Test Set).png" alt="Misclassified Images (Test Set)" style="zoom:47%;" />
 
 
 ## File Structure
