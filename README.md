@@ -23,12 +23,60 @@ pip install -r requirements.txt
 
 #### Dataset
 
-The training and test images can be found in [images share](https://www.kaggle.com/lonelvino/img-clf-cs).
+The train and test images can be found in [kaggle dataset](https://www.kaggle.com/lonelvino/img-clf-cs).
+
+Please download the image data set and save it in the parent path of this project, named the folder containing the training images **'appr'**, named the folder containing the test images **'appr'**, as shown below:
+
+```
+┣ 📦image_processing
+   ┣ 📦appr  ### Train Dataset !!!
+     ┣ 📂binarized
+     ┣ 📂contour
+     ┣ 📂contour_central
+     ┣ 📂fft
+     ┗ 📂origin
+   ┣ 📦reference
+   ┣ 📦main
+   ┣ 📦test  ### Test dataset !!!
+     ┣ 📂binarized
+     ┣ 📂contour
+     ┣ 📂contour_central
+     ┣ 📂fft
+     ┗ 📂origin
+   ┣ 📜KMeans.py
+   ┣ 📜PCA.py
+   ┣ 📜README.md
+   ┣ 📜.........
+   ┗ 📜utlis.py
+```
 
 ## Usage
 
 ### Generate Images Dataset
 
+```bash
+gene_process.py [-h] [-N [Number]] [-L [BOOLEAN]] [-OPth [Path]] [-SPth [Path]]
+                       [-T [Type]]
+```
+```
+optional arguments:
+  -h, --help            show this help message and exit
+  -N [Number], --num [Number]
+                        Number of Generated Images
+  -L [BOOLEAN], --is_load [BOOLEAN]
+                        Load original images from folder
+  -OPth [Path], --img_path [Path]
+                        Path of Original images
+  -SPth [Path], --save_path [Path]
+                        Path of images to save
+  -T [Type], --img_type [Type]
+                        Type of images to load
+```
+
+For example: 
+`python3 main/gene_process.py -N 500 -OPth appr/test/origin -SPth appr/test`
+
+By running the command above, *500* transformed images will be generated based on the reference images and be saved in a folder `appr/test/origin`. Then the processed images (binarized, contour, fft) will be generated based on the *500* transformed images and be saved in a folder `/appr/test`.
 
 
 ### Classify
@@ -57,9 +105,9 @@ Optional Arguments:
 ```
 
 For example: 
-`python3 classify.py -M KNN KMeans -N 5000 -P yes -K yes`
+`python3 main/classify.py -M KNN KMeans -N 5000 -P yes -K yes`
 
-By running the command above,   $5000$ images will be used to train **KMeans** and **KNN** , and then to classify $500$ test images, before finding the best number of components in **PCA** and best number of clusters in **KMeans**.
+By running the command above,   *5000* images will be used to train **KMeans** and **KNN** , and then to classify *500* test images, before finding the best number of components in **PCA** and best number of clusters in **KMeans**.
 
 ## Performance
 
@@ -83,7 +131,7 @@ By running the command above,   $5000$ images will be used to train **KMeans** a
 
    <img src="assets/img/K-means/best_n_pca.png" alt="best_n_pca" style="zoom:45%; margin-right:40px" /><img src="assets/img/K-means/best_number_clusters.png" alt="best_n_pca" style="zoom:45%;" />
 
-As we can see above, the *best N component*s of **PCA** is about *<u>16</u>* and the clustering performance improves as the *number of clusters* of **KMeans** increases, according to 5 important metrics ([Inertia](https://scikit-learn.org/stable/modules/clustering.html),[Homogeneity](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.homogeneity_score.html), [Completeness](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.completeness_score.html#sklearn.metrics.completeness_score),[V measure](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.v_measure_score.html), [ARI](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.adjusted_rand_score.html), [AMI](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.adjusted_mutual_info_score.html)).
+As we can see above, the *best N component*s of **PCA** is about *<u>16</u>* and the clustering performance improves as the *number of clusters* of **KMeans** increases, according to 5 important metrics ([Inertia](https://scikit-learn.org/stable/modules/clustering.html), [Homogeneity](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.homogeneity_score.html), [Completeness](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.completeness_score.html#sklearn.metrics.completeness_score), [V measure](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.v_measure_score.html), [ARI](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.adjusted_rand_score.html), [AMI](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.adjusted_mutual_info_score.html)).
 
 > Theoretically the more clusters, the better the metrics, however, please note this will result in over-fitting and computation time explosion.
 
@@ -124,16 +172,20 @@ More classification information, please refer to: [Classification Report](assets
      ┣ 📂contour
      ┣ 📂contour_central
      ┣ 📂fft
-     ┣ 📂origin
+     ┗ 📂origin
    ┣ 📦reference
      ┣ 📜obj101.bmp
-     ┣ 📜obj201.bmp
-     ┣ 📜obj301.bmp
-     ┣ 📜obj401.bmp
-     ┣ 📜obj501.bmp
+     ┣ 📜.........
      ┗ 📜obj601.bmp
-   ┣ 📦test
-     ┣ 📂test  # Test dataset
+   ┣ 📦main
+     ┣ 📜classify.py
+     ┗ 📜gene_process.py
+   ┣ 📦test  # Test dataset 
+     ┣ 📂binarized
+     ┣ 📂contour
+     ┣ 📂contour_central
+     ┣ 📂fft
+     ┗ 📂origin
    ┣ 📜KMeans.py
    ┣ 📜PCA.py
    ┣ 📜README.md

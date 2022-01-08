@@ -7,12 +7,24 @@ import pickle
 import math
 import random
 from tqdm import tqdm
+from argparse import ArgumentTypeError
 
 
 plt.rc('font', family='serif')
 plt.rc('xtick', labelsize='x-large')
 plt.rc('ytick', labelsize='x-large')
 plt.rc('axes', labelsize='x-large', titlesize='x-large')
+
+
+def str2bool(v):
+    if isinstance(v, bool):
+        return v
+    if v.lower() in ('yes', 'true', 't', 'y', '1'):
+        return True
+    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+        return False
+    else:
+        raise ArgumentTypeError('Boolean value expected.')
 
 
 # load reference images

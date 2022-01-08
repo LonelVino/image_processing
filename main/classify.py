@@ -7,13 +7,12 @@ parentdir = os.path.dirname(currentdir)
 sys.path.insert(0, parentdir) 
 
 from generate import gene_train_images, load_files_to_dataset
-from utlis import disp_multi_images, display_mis_images
+from utlis import disp_multi_images, display_mis_images, str2bool
 from evaluation import Evaluate, evaluate_KMeans
 from PCA import find_best_n_PCA
 from KMeans import find_best_clusters, retrieve_info
 
 import matplotlib.pyplot as plt
-
 import numpy as np
 import warnings
 warnings.filterwarnings('ignore')
@@ -28,16 +27,8 @@ from sklearn.utils.fixes import loguniform
 from sklearn import metrics
 from sklearn.metrics import classification_report, ConfusionMatrixDisplay, PrecisionRecallDisplay, confusion_matrix
 
-from argparse import ArgumentParser, RawTextHelpFormatter, ArgumentTypeError
-def str2bool(v):
-    if isinstance(v, bool):
-        return v
-    if v.lower() in ('yes', 'true', 't', 'y', '1'):
-        return True
-    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
-        return False
-    else:
-        raise ArgumentTypeError('Boolean value expected.')
+from argparse import ArgumentParser, RawTextHelpFormatter
+
 
 
 parser = ArgumentParser(description="Image Classification.", formatter_class=RawTextHelpFormatter)
@@ -53,6 +44,10 @@ parser.add_argument('-PN', '--pca_n', metavar='Number', type=int, nargs='?',
                     help='Number of PCA Components', 
                     required=False, default = 13)
 
+parser.add_argument('-KN', '--kmeans_n', metavar='Number', type=int, nargs='?',
+                    help='Number of Kmeans Clusters', 
+                    required=False, default = 150)
+
 parser.add_argument('-P', '--pca', metavar='BOOLEAN', type=str2bool, nargs='?',
                     required=False, default = False,
                     help="Find Best Number of Components of PCA")
@@ -65,8 +60,11 @@ parser.add_argument('-K', '--kmeans', metavar='BOOLEAN', type=str2bool, nargs='?
                     required=False, default = False)
 
 args = parser.parse_args()
-methods = args.methods; train_num = args.num; pca_n = args.pca_n
+methods = args.methods; train_num = args.num; 
+pca_n = args.pca_n; kmeans_n = args.kmeans_n;
 find_pca = args.pca; find_kmeans = args.kmeans
+
+
 
 # %% ============== 1. Images Loading and Tansformation===============
 print('\n============== 1. Images Loading and Tansformation===============')
@@ -90,8 +88,8 @@ print('_'*80)
 
 
 print('\n[INFO] Loading Test Set.....')
-test_set = load_files_to_dataset(img_path='test/test/fft', type_image_train='png', 
-                    label_path='test/test/fft', label_filename='labels.pkl',
+test_set = load_files_to_dataset(img_path='test/fft', type_image_train='png', 
+                    label_path='test/fft', label_filename='labels.pkl',
                     max_num=500)
 data_test = test_set.data; images_test = test_set.images
 features_test = test_set.feature_names; filenames_test = test_set.filenames
@@ -109,9 +107,11 @@ print('_'*80)
 
 # Load Original Images
 print('\n[INFO] Loading Original Images in Test Set.....')
-test_set_og = load_files_to_dataset(img_path='test/test/origin', type_image_train='png', 
-                label_path='test/test/origin', label_filename='labels.pkl',
+test_set_og = load_files_to_dataset(img_path='test/origin', type_image_train='png', 
+                label_path='test/origin', label_filename='labels.pkl',
                 max_num=500)
+
+
 
 
 # %% ================= 2. Pre-Processing ====================
@@ -158,6 +158,8 @@ scaler_test = StandardScaler() # Scale Data
 data_test = scaler_test.fit_transform(data_test)
 
 
+
+
 # %%================= 3.PCA + CLF  ====================
 # Define SVC
 cv=StratifiedKFold(n_splits=5)
@@ -185,7 +187,7 @@ clf_KNN = RandomizedSearchCV(
     cv=cv, 
 )
 
-kmeans_results, best_clusters = find_best_clusters(X_train, X_val, y_train, y_val) if find_kmeans else [], 275
+kmeans_results, best_clusters = find_best_clusters(X_train, X_val, y_train, y_val) if find_kmeans else [], kmeans_n
 param_grid_KMeans = {
     "n_init": np.arange(5,10),
     "random_state": [0,6,8,42,43,2001]
@@ -228,6 +230,8 @@ def train_pca_clf(clf, pca_n, is_KMeans=False):
         return pca, clf, y_pred, y_prob_pred
 
 
+
+
 # %% ================= 4. Evaluation ====================
 def pred_eval_test(pca, clf, y_pred, y_prob_pred, clf_name='clf'):
     print('================ Evaluate on Validation data ================')
@@ -259,6 +263,8 @@ def pred_eval_test_KMeans(pca_KMeans, clf_KMeans, y_pred_KMeans, predict_labels)
     display_mis_images(target_test, predict_labels_test, filenames_test, images_test_og, target_test_og, filenames_test_og)
     plt.show()
     return y_test_pred, eval_val, eval_test
+
+
 
 
 # %% ================= 5. Main Program ====================
