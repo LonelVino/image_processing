@@ -55,7 +55,7 @@ Please download the image data set and save it in the parent path of this projec
 ### Generate Images Dataset
 
 ```bash
-gene_process.py [-h] [-N [Number]] [-L [BOOLEAN]] [-OPth [Path]] [-SPth [Path]]
+python3 main/gene_process.py [-h] [-N [Number]] [-L [BOOLEAN]] [-OPth [Path]] [-SPth [Path]]
                        [-T [Type]]
 ```
 ```
@@ -73,7 +73,8 @@ optional arguments:
                         Type of images to load
 ```
 
-For example: 
+**<font color=red>For example:</font>**
+
 `python3 main/gene_process.py -N 500 -OPth appr/test/origin -SPth appr/test`
 
 By running the command above, *500* transformed images will be generated based on the reference images and be saved in a folder `appr/test/origin`. Then the processed images (binarized, contour, fft) will be generated based on the *500* transformed images and be saved in a folder `/appr/test`.
@@ -82,7 +83,7 @@ By running the command above, *500* transformed images will be generated based o
 ### Classify
 
 ```bash
-python3 classify.py  [-h] [-M Methods [Methods ...]] [-N [Number]] [-PN [Number]]
+python3 main/classify.py  [-h] [-M Methods [Methods ...]] [-N [Number]] [-PN [Number]]
                    [-P [BOOLEAN]] [-K [BOOLEAN]]                
 ```
 
@@ -104,8 +105,10 @@ Optional Arguments:
                         'no', 'false', 'f', 'n', '0')
 ```
 
-For example: 
-`python3 main/classify.py -M KNN KMeans -N 5000 -P yes -K yes`
+**<font color=red>For example:</font>**
+
+
+ `python3 main/classify.py -M KNN KMeans -N 5000 -P yes -K yes`
 
 By running the command above,   *5000* images will be used to train **KMeans** and **KNN** , and then to classify *500* test images, before finding the best number of components in **PCA** and best number of clusters in **KMeans**.
 
