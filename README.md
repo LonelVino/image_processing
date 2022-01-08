@@ -1,8 +1,8 @@
 # Characterization of forms and classification
 
-![](https://img.shields.io/badge/Python-v3.8-orange) ![](https://img.shields.io/badge/Ubuntu-E95420?style=for-the-badge&logo=ubuntu&logoColor=white)
+![](https://img.shields.io/badge/Python-v3.8-orange) ![](https://img.shields.io/badge/Ubuntu-E95420?style=for-the-badge&logo=ubuntu&logoColor=white)![Visual Studio Code](https://img.shields.io/badge/Visual%20Studio%20Code-0078d7.svg?style=for-the-badge&logo=visual-studio-code&logoColor=white) ![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white) ![NumPy](https://img.shields.io/badge/numpy-%23013243.svg?style=for-the-badge&logo=numpy&logoColor=white) ![scikit-learn](https://img.shields.io/badge/scikit--learn-%23F7931E.svg?style=for-the-badge&logo=scikit-learn&logoColor=white) 
 
-Based on [PCA](https://en.wikipedia.org/wiki/Principal_component_analysis), synthesize 3 classifier ([KNN](https://en.wikipedia.org/wiki/K-nearest_neighbors_algorithm), [KMeans](https://en.wikipedia.org/wiki/K-means_clustering), [SVM](https://en.wikipedia.org/wiki/Support-vector_machine)), with generating images set from the scratch, achieve high test accuracy: $95%$ of **KNN**, $93%$ of **KMeans** and $97%$ of **SVM**.
+Based on [PCA](https://en.wikipedia.org/wiki/Principal_component_analysis), synthesize 3 classifier ([KNN](https://en.wikipedia.org/wiki/K-nearest_neighbors_algorithm), [KMeans](https://en.wikipedia.org/wiki/K-means_clustering), [SVM](https://en.wikipedia.org/wiki/Support-vector_machine)), with generating images set from the scratch, achieve high test accuracy: *95%* of **KNN**, *93%* of **KMeans** and *97%* of **SVM**.
 
 ## Prerequisites
 
@@ -23,7 +23,7 @@ pip install -r requirements.txt
 
 #### Dataset
 
-The training and test images can be found in [images share]().
+The training and test images can be found in [images share](https://www.kaggle.com/lonelvino/img-clf-cs).
 
 ## Usage
 
@@ -56,35 +56,63 @@ Optional Arguments:
                         'no', 'false', 'f', 'n', '0')
 ```
 
-For example: `python3 classify.py -M KNN KMeans -N 5000 -PN 13 -P yes -K yes`
+For example: 
+`python3 classify.py -M KNN KMeans -N 5000 -P yes -K yes`
 
-By running the command above,   $5000$ images will be used to train **KMeans** and **KNN** , and then to classify $500$ test images, with finding the best number of components in **PCA** and best number of clusters in **KMeans**.
+By running the command above,   $5000$ images will be used to train **KMeans** and **KNN** , and then to classify $500$ test images, before finding the best number of components in **PCA** and best number of clusters in **KMeans**.
 
 ## Performance
 
-##### KNN
+#### KNN
 
-The best *N* components of **PCA** with **KNN**,  and **Confusion Matrix**.
+1. The best *N* components of **PCA** with **KNN**
 
-<img src="assets/img/KNN/best_n_PCA_KNN.png" alt="ConfusionMatrix" style="zoom:85%;" /><img src="assets/img/KNN/ConfusionMatrix(test).png" alt="ConfusionMatrix" style="zoom:20%; margin-top:50px" />
+<img src="assets/img/KNN/best_n_PCA_KNN.png" alt="ConfusionMatrix" style="zoom:85%;" />
 
-##### KMeans
+2. **Confusion Matrix on Validation Set and Test Set**
 
+   <img src="assets/img/KNN/ConfusionMatrix.png" alt="ConfusionMatrix" style="zoom:75%; margin-right: 20px" /><img src="assets/img/KNN/ConfusionMatrix(test).png" alt="ConfusionMatrix" style="zoom:75%;" />
 
+3. **Precision-Recall Curve (PRC) and Receiver Operating Characteristic Curve (ROC)**:
 
-##### SVM
+   <img src="assets/img/KNN/PRC.png" alt="PRC" style="zoom:70%; margin-right:40px" /><img src="assets/img/KNN/ROC_curves(test).png" alt="PRC" style="zoom:20%;" />
 
-Confusion Matrix of Validation Set(Left) and Test Set(Right)
+#### KMeans
 
-<img src="assets/img/SVM/SVM_30_fft.png" alt="ConfusionMatrix" style="zoom:85%;" /><img src="assets/img/SVM/SVM_150_origin.png" alt="ConfusionMatrix" style="zoom:85%;" />
+1. The *best N component*s of **PCA** with **KMeans**, and the *best number of clusters* of **KMeans**:
 
-**PRC** curves (left) and **ROC** curves (right)
+   <img src="assets/img/K-means/best_n_pca.png" alt="best_n_pca" style="zoom:45%; margin-right:40px" /><img src="assets/img/K-means/best_number_clusters.png" alt="best_n_pca" style="zoom:45%;" />
 
-<img src="assets/img/SVM/PRC_curves_zoom_in.png" alt="ROC_curves" style="zoom:50%;" /><img src="assets/img/SVM/ROC_curves.png" alt="ROC_curves" style="zoom:13%; " />
+As we can see above, the *best N component*s of **PCA** is about *<u>16</u>* and the clustering performance improves as the *number of clusters* of **KMeans** increases, according to 5 important metrics ([Inertia](https://scikit-learn.org/stable/modules/clustering.html),[Homogeneity](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.homogeneity_score.html), [Completeness](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.completeness_score.html#sklearn.metrics.completeness_score),[V measure](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.v_measure_score.html), [ARI](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.adjusted_rand_score.html), [AMI](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.adjusted_mutual_info_score.html)).
 
-**Misclassified Images:**
+> Theoretically the more clusters, the better the metrics, however, please note this will result in over-fitting and computation time explosion.
 
-<img src="assets/img/SVM/Misclassified Images (Test Set).png" alt="Misclassified Images (Test Set)" style="zoom:47%;" />
+2. **Confusion Matrix on Validation Set and Test Set**
+
+   <img src="assets/img/K-means/ConfusionMatrix.png" alt="ConfusionMatrix" style="zoom:95%; margin-right: 20px" /><img src="assets/img/K-means/ConfusionMatrix (Test Set).png" alt="ConfusionMatrix(test)" style="zoom:95%; margin-right: 20px" />
+
+   
+
+#### SVM
+
+1. The best *N* components of **PCA** with **SVM**
+
+   <img src="assets/img/SVM/best_n_pca.png" alt="best_n_pca" style="zoom:55%;" />
+
+2. **Confusion Matrix on Validation Set and Test Set**
+
+   <img src="assets/img/SVM/ConfusionMatrix.png" alt="ConfusionMatrix" style="zoom:95%; margin-right: 20px" /><img src="assets/img/SVM/ConfusionMatrix_test.png" alt="ConfusionMatrix(test)" style="zoom:95%; margin-right: 20px" />
+
+3. **PRC** curves  and **ROC** curves
+
+    <img src="assets/img/SVM/PRC_curves_zoom_in.png" alt="ROC_curves" style="zoom:60%;" />     <img src="assets/img/SVM/ROC_curves.png" alt="ROC_curves" style="zoom:55%; " />
+
+#### **Example of Misclassified Images**
+
+<img src="assets/img/KNN/Misclassified Images (Test Set).png" alt="Misclassified Images (Test Set)" style="zoom:47%;" />
+
+More classification information, please refer to: [Classification Report](assets/ClassificationReport.md)
+
 
 
 ## File Structure
@@ -131,3 +159,4 @@ Confusion Matrix of Validation Set(Left) and Test Set(Right)
 5. Qiu, Changzhen, et al. "Performance comparison of target classification in SAR images based on PCA and 2D-PCA features." *2009 2nd Asian-Pacific Conference on Synthetic Aperture Radar*. IEEE, 2009.
 6. Ayiah-Mensah, Francis, et al. "Recognition of augmented frontal face images using FFT-PCA/SVD algorithm." *Applied Computational Intelligence and Soft Computing* 2021 (2021).
 7. Molchanov, Vladimir, and Lars Linsen. "Overcoming the Curse of Dimensionality When Clustering Multivariate Volume Data." *VISIGRAPP (3: IVAPP)*. 2018.
+7. [Andrew Rosenberg and Julia Hirschberg, 2007. V-Measure: A conditional entropy-based external cluster evaluation measure](https://aclweb.org/anthology/D/D07/D07-1043.pdf)
