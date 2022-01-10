@@ -30,27 +30,56 @@ end
 % Evaluate the similarity of different cmax
 similarities = zeros(length(boundary)-1, 1);
 
+B_resized_all = {};
 figure(2), set(gcf, 'Position', [0, 400, 400, 400])
+title('Animation display of different contours', 'FontSize', 14, 'fontname', 'times')
 for i = 1:length(boundary)-1
     % Rebuild the boundary using FFT and IFFT
     B_rebuild = rebuild(boundary, i);
     B_resize = resize_boundary(B_rebuild, boundary);
+    B_resized_all{end + 1} = B_resize;
     % Calculate the similarity between rebuilt and original boundary
     crr = xcorr2(boundary, B_rebuild);
     [ssr,snd] = max(crr(:));
-    similarities(i) = snd;
+    similarities(i) = ssr;
     % Plot the rebuilt boundary 
     if mod(i,10)== 1
-        figure(2), plot(boundary(:,1), boundary(:,2), 'LineWidth',2); hold on;
+        figure(2), plot(boundary(:,1), boundary(:,2), 'LineWidth',3); hold on;
         figure(2), plot(B_resize(:,1), B_resize(:,2), 'LineStyle', ':', 'LineWidth',2); 
         drawnow
         pause(0.1)
     end
 end
 
-figure,  set(gcf, 'Position', [400, 400, 400, 400])
-loglog(similarities, 'lineWidth', 2, 'Color', 'g'), xlabel('cmax'), ylabel('Inter-correlation error')
-title('The similarity between original and rebuilt boundary')
+
+%% Plot line chart of similarities, add notes where BEST cmax is
+figure,  set(gcf, 'Position', [400, 800, 600, 600])
+loglog(similarities, 'lineWidth', 2, 'Color', 'g'), 
+xlabel('cmax', 'FontSize', 14, 'fontname', 'times')
+ylabel('Cross-correlation (simialrity)', 'FontSize', 14, 'fontname', 'times')
+[max_sim,idx] = max(similarities(1:length(similarities)-10)); % set a truncation to remove the cmax not meeting our requirements
+xline(idx, 'lineWidth', 2, 'Color', 'r');
+text(idx, min(similarities)*1.01, sprintf('cmax=%d with maximum similary', idx),...
+    'fontsize', 15, 'fontname', 'times', 'color', 'r')
+title('The similarity between original and rebuilt boundary', 'FontSize', 14, 'fontname', 'times')
+
+% Plot several reconstructed contours, find the best one with highest similarity 
+figure,  set(gcf, 'Position', [1000, 400, 1000, 800])
+text( 0.5, 0, 'My Nice Title', 'FontSize', 14', 'FontWeight', 'Bold', ...
+      'HorizontalAlignment', 'Center', 'VerticalAlignment', 'Bottom' ) ;
+% title('Rebuild Contours \n(green contour -- original contour)\n(blue contour -- rebuild contour)',...
+%     'FontSize', 20, 'fontname', 'times')
+for i = 1:16
+    subplot(4,4,i);
+    plot(boundary(:,1), boundary(:,2), 'LineWidth',3); hold on;
+    B_rebuild = cell2mat(B_resized_all(i));
+    plot(B_rebuild(:,1), B_rebuild(:,2),  'lineWidth', 2, 'Color', 'g');
+    set(gca,'xtick',[],'ytick',[])
+    title(sprintf('Truncation length: %d', i), 'fontsize', 12, 'fontname', 'times');
+    if i == idx
+        text(min(B_rebuild(:,1)), mean(B_rebuild(:,2)), 'Best Reconstruction', 'FontSize', 14, 'fontname', 'times', 'color', 'r')
+    end
+end
 
 %% Fourier Transform of the boundary and find the best cmax
 % coeff=dfdir(z,cmax),  z=dfinv(coeff,N)
