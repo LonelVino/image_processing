@@ -1,29 +1,30 @@
 clear; clc; close all
 
 classes = [1:3; 4:6]'; num_class = 3;
+ind_vals_avg = {}; % store average value of all indepedent parameters of 6 classes
 for classes_ = classes
     figure, set(gcf, 'Position', [200,200,1200,2400])
-    for class = 1:length(classes_)
-        Bi_images = get_img_byclass('./appr', classes_(class), false); % get images in the same class true: show images
+    for idx = 1:length(classes_)
+        Bi_images = get_img_byclass('./appr', classes_(idx), false); % get images in the same idx true: show images
         [keys, all_params] = get_params(Bi_images);  % get parmaeters and keys of images, keys and correpsongding parameters values
         [ind_params_key, ind_params_val] = find_ind_params(keys, all_params); % find independent parameters
 
         %% Count the independent parameters
         uni_ind_params_key = unique(ind_params_key); 
-        uni_ind_params_val = {};
+        uni_ind_params_val = {};  % store all values of all indepedent parameters (images in 1 class)
         appr_count = [];
         for i = uni_ind_params_key
             appr_count(end+1) = sum(ind_params_key==i);
-            ind_param_val = ind_params_val(ind_params_key==i);
+            ind_param_val = ind_params_val(ind_params_key==i);  % values of one independent parameters
             uni_ind_params_val{end+1} = ind_param_val;
         end
 
 
-        subplot(num_class,3,class*3-2); 
+        subplot(num_class,3,idx*3-2); 
         imshow(cell2mat(Bi_images(1)))
-        xlabel(sprintf('Origin Image(Class %d)',  classes_(class)), 'fontname', 'times', 'fontsize', 18)
+        xlabel(sprintf('Origin Image(Class %d)',  classes_(idx)), 'fontname', 'times', 'fontsize', 18)
 
-        subplot(num_class,3,class*3-1); title('Count independent parameters', 'fontname', 'times', 'fontsize', 20)
+        subplot(num_class,3,idx*3-1); title('Count independent parameters', 'fontname', 'times', 'fontsize', 20)
         params_name = categorical(uni_ind_params_key);
         b = bar(params_name, appr_count);
         xtips1 = b(1).XEndPoints;
@@ -34,13 +35,18 @@ for classes_ = classes
         text(xtips1,ytips1,labels1,'HorizontalAlignment','center','VerticalAlignment','bottom',...
             'FontName','Times', 'FontWeight','bold', 'FontSize', 16)
 
-        subplot(num_class,3,class*3); title('Visualize independent parameters value', 'fontname', 'times', 'fontsize', 20)
+        subplot(num_class,3,idx*3); title('Visualize independent parameters value', 'fontname', 'times', 'fontsize', 20)
+        vals_avg = [];
         for i = 1:length(uni_ind_params_key)
-            data_ = uni_ind_params_val(i);
-            data = cell2mat(data_{:});
+            data = uni_ind_params_val(i);
+            data = cell2mat(data{:});
+            data_avg = mean(data);
+            vals_avg(end+1) = data_avg;
             scatter(ones(length(data),1)*i, data, 105, 'filled');
             hold on; grid on;
         end
+        ind_vals_avg{end+1} = vals_avg;
+        
         xticks([1:5]); xticklabels(uni_ind_params_key); xtickangle(30)
         ax = gca; ax.XAxis.FontSize = 14; ax.YAxis.FontSize = 14;  ax.XAxis.FontName= 'times'; ax.YAxis.FontName= 'times';  ax.XColor=[0, 0.6, 0];
     %     xlabel('Independent Parameters', 'fontsize', 16, 'FontName','Times', 'Color', [0, 0, 0]); ylabel('Value' ,'fontsize', 16, 'fontname', 'times')
@@ -48,6 +54,18 @@ for classes_ = classes
     end
 end
 
+figure, set(gcf, 'Position', [800,600,900, 600])
+for i = 1:length(ind_vals_avg)
+    avg_ = ind_vals_avg{i};
+    if length(avg_) == 4  % solve inconsisitent dimension problem, images in class 2 have only 4 independent parameters
+        avg_ = cat(2, avg_(1:3), (0), avg_(4));
+    end
+    scatter((1:5), avg_, 105, 'filled'); hold on;  grid on;
+    xticks((1:5)); xticklabels(uni_ind_params_key); xtickangle(30)
+    ax = gca; ax.XAxis.FontSize = 18; ax.YAxis.FontSize = 14;  ax.XAxis.FontName= 'times'; ax.YAxis.FontName= 'times';  ax.XColor=[0, 0.6, 0];
+end    
+lgd = legend('Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'FontSize', 16, 'FontName', 'times');
+title(lgd, ' Images Class', 'FontSize', 16, 'FontName', 'times')
 
 function [keys, all_params] = get_params(Bi_images)
 %% Storeage Properties
