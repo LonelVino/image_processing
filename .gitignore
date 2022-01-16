@@ -1,14 +1,15 @@
 *.pyc
 *.ipynb
+*.zip
 
 .ipynb_checkpoints
 .vscode
 __pycache__
 
 appr/
-test/*.zip
-*.zip
 test/
+appr_new/
+reference/new/
 
 assets/data
 

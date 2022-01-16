@@ -22,6 +22,9 @@ def gene_train_images(ref='reference', train='appr/origin', type_image_ref='bmp'
         type_image_base (str): type des images generees dans la base
         N (int): nombre d'images generees
     '''
+    print('Path of Reference Images: ', ref, '\nType of Reference Images: ', type_image_ref)
+    print('Save Path: ', train, '\nType of Images to save: ', type_image_train)
+
     CHECK_FOLDER = os.path.isdir(train)
     # If folder doesn't exist, then create it.
     if not CHECK_FOLDER:

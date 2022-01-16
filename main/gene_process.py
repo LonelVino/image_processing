@@ -8,13 +8,13 @@ sys.path.insert(0, parentdir)
 
 import numpy as np
 import pickle
-from argparse import ArgumentParser, RawTextHelpFormatter
 
 from generate import gene_train_images, load_files_to_dataset
 from image_process import PreProcessing
-from utlis import save_images, save_dict, disp_multi_images, str2bool
+from utlis import save_images, save_dict, str2bool
+from visualize import disp_multi_images
 
-
+from argparse import ArgumentParser, RawTextHelpFormatter
 parser = ArgumentParser(description="Generate or Load Original images, and then generate Processed Images.", formatter_class=RawTextHelpFormatter)
 parser.add_argument('-N', '--num', metavar='Number', type=int, nargs='?',
                     help='Number of Generated Images', 
@@ -28,18 +28,23 @@ parser.add_argument('-OPth', '--img_path', metavar='Path', type=str, nargs='?',
 parser.add_argument('-SPth', '--save_path', metavar='Path', type=str, nargs='?',
                     help='Path of images to save', 
                     required=False, default = 'appr')
+parser.add_argument('-rT', '--ref_img_type', metavar='Type', type=str, nargs='?',
+                    help='Type of reference images to load', 
+                    required=False, default = 'bmp')
 parser.add_argument('-T', '--img_type', metavar='Type', type=str, nargs='?',
-                    help='Type of images to load', 
+                    help='Type of origin images to save / Type of images to save', 
                     required=False, default = 'png')
 
 args = parser.parse_args()
 num = args.num; is_load = args.is_load; 
-img_path = args.img_path; img_type = args.img_type; 
-save_path = args.save_path
+img_path = args.img_path; save_path = args.save_path;
+ref_img_type = args.ref_img_type; img_type = args.img_type; 
 
 print('\n[INFO] Generating Training Images ... ')
 if not is_load:
-    train_data = gene_train_images(train=img_path, type_image_train=img_type, N=num)
+    origin_path = save_path+'/origin'
+    train_data = gene_train_images(ref=img_path, train = origin_path,\
+        type_image_ref=ref_img_type, type_image_train=img_type, N=num)
 else:
     train_data = load_files_to_dataset(img_path=img_path,  type_image_train=img_type, \
         label_path=img_path, label_filename='labels.pkl')
@@ -81,7 +86,10 @@ print('\n[INFO] Saving FFT Images ... ')
 save_images(images_fft_log, save_path+'/fft/', file_names, img_type='png', clear_cache=True)
 
 # Save labels of images
-labels_file = open("./"+img_path+"/labels.pkl", "rb")
+if not is_load:
+    labels_file = open("./"+origin_path+"/labels.pkl", "rb")
+else:
+    labels_file = open("./"+img_path+"/labels.pkl", "rb")
 labels = pickle.load(labels_file)    
 save_dict(labels, path=save_path+'/binarized/labels.pkl')
 save_dict(labels, path=save_path+'/contour/labels.pkl')

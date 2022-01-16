@@ -7,10 +7,12 @@ parentdir = os.path.dirname(currentdir)
 sys.path.insert(0, parentdir) 
 
 from generate import gene_train_images, load_files_to_dataset
-from utlis import disp_multi_images, display_mis_images, str2bool
-from evaluation import Evaluate, evaluate_KMeans
+from utlis import str2bool
+from pre_process import remove_outlier
 from PCA import find_best_n_PCA
 from KMeans import find_best_clusters, retrieve_info
+from evaluation import Evaluate, evaluate_KMeans
+from visualize import display_mis_images, disp_multi_images, visual_KMeans_2d, visual_KMeans_3d
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -40,6 +42,14 @@ parser.add_argument('-N', '--num', metavar='Number', type=int, nargs='?',
                     help='Number of Training Images', 
                     required=False, default = 500)
 
+parser.add_argument('-RPth', '--train_img_path', metavar='Path', type=str, nargs='?',
+                    help='Path of Traininig images', 
+                    required=False, default = 'appr/fft')
+
+parser.add_argument('-TPth', '--test_img_path', metavar='Path', type=str, nargs='?',
+                    help='Path of Test images', 
+                    required=False, default = 'test/fft')
+
 parser.add_argument('-PN', '--pca_n', metavar='Number', type=int, nargs='?',
                     help='Number of PCA Components', 
                     required=False, default = 13)
@@ -61,6 +71,7 @@ parser.add_argument('-K', '--kmeans', metavar='BOOLEAN', type=str2bool, nargs='?
 
 args = parser.parse_args()
 methods = args.methods; train_num = args.num; 
+train_pth = args.train_img_path; test_pth = args.test_img_path;
 pca_n = args.pca_n; kmeans_n = args.kmeans_n;
 find_pca = args.pca; find_kmeans = args.kmeans
 
@@ -70,8 +81,8 @@ find_pca = args.pca; find_kmeans = args.kmeans
 print('\n============== 1. Images Loading and Tansformation===============')
 
 print('\n[INFO] Loading Train Set.....')
-train_set = load_files_to_dataset(img_path='appr/fft',  type_image_train='png', 
-    label_path='appr/fft', label_filename='labels.pkl',
+train_set = load_files_to_dataset(img_path=train_pth,  type_image_train='png', 
+    label_path=train_pth, label_filename='labels.pkl',
     max_num=train_num)
 
 images = train_set.images; data = train_set.data
@@ -88,8 +99,8 @@ print('_'*80)
 
 
 print('\n[INFO] Loading Test Set.....')
-test_set = load_files_to_dataset(img_path='test/fft', type_image_train='png', 
-                    label_path='test/fft', label_filename='labels.pkl',
+test_set = load_files_to_dataset(img_path=test_pth, type_image_train='png', 
+                    label_path=test_pth, label_filename='labels.pkl',
                     max_num=500)
 data_test = test_set.data; images_test = test_set.images
 features_test = test_set.feature_names; filenames_test = test_set.filenames
@@ -169,7 +180,7 @@ param_grid_SVC = {
 }
 clf_SVC = RandomizedSearchCV(
     SVC(kernel="rbf", probability=True, class_weight="balanced", decision_function_shape='ovo'),\
-    param_grid_SVC, n_iter=50, refit=True,
+    param_grid_SVC, n_iter=10, refit=True,
     scoring='accuracy', cv=cv, 
 )
 
@@ -198,11 +209,12 @@ clf_KMeans = RandomizedSearchCV(
 )
 
 # Train classifier
-def train_pca_clf(clf, pca_n, is_KMeans=False):
+def train_pca_clf(clf, pca_n, X_train, X_val, y_train, y_val, is_KMeans=False, is_plot=False):
     if find_pca:
         print('\n[INFO] Find best n components (highest accuracy and less components)')
         n_components = np.unique(np.logspace(1.0,8.0, num=50, base=2.0).astype(int))
         pca_results, pca_n = find_best_n_PCA(clf, X_train, X_val, y_train, y_val, n_components=n_components, clf_name='SVC')
+    
     print("\n[INFO]  Extracting the top %d eigenvalues from %d samples" % (pca_n, X_train.shape[0]))
     pca = PCA(n_components=pca_n, svd_solver="randomized", whiten=True).fit(X_train)
 
@@ -210,7 +222,10 @@ def train_pca_clf(clf, pca_n, is_KMeans=False):
     X_train_pca = pca.transform(X_train)
     X_val_pca = pca.transform(X_val)
     
-    print("[INFO]  Fitting the SVC classifier to the training set")
+    print('\n[INFO]  Detect and removing outliers')
+    X_train_pca, y_train = remove_outlier(X_train_pca, y_train, is_plot=True)
+    
+    print("[INFO]  Fitting the classifier to the training set")
     clf = clf.fit(X_train_pca, y_train)
 
     print("_"*80, "\n[RESULT] Best estimator found by grid search:")
@@ -224,8 +239,11 @@ def train_pca_clf(clf, pca_n, is_KMeans=False):
         # convert cluster labels into true class labels
         reference_labels = retrieve_info(y_pred, y_val.astype(int))  # cluster labels
         predict_labels = np.array(list(map(lambda x: reference_labels[x], y_pred)))  # true predict labels
+        if is_plot:
+            visual_KMeans_3d(X_train_pca, predict_labels)
+            visual_KMeans_2d(X_train_pca)
         return pca, clf, y_pred, reference_labels, predict_labels
-    else: 
+    else:   
         y_prob_pred = clf.predict_proba(X_val_pca)
         return pca, clf, y_pred, y_prob_pred
 
@@ -271,17 +289,20 @@ def pred_eval_test_KMeans(pca_KMeans, clf_KMeans, y_pred_KMeans, predict_labels)
 ### ================== PCA + CLF ========================
 if 'SVC' in methods:
     print('\n================ 3. PCA + SVC ================')
-    pca_SVC, clf_SVC, y_pred_SVC, y_prob_pred_SVC = train_pca_clf(clf_SVC, pca_n)
+    pca_SVC, clf_SVC, y_pred_SVC, y_prob_pred_SVC = \
+        train_pca_clf(clf_SVC, pca_n, X_train, X_val, y_train, y_val)
     y_test_pred_SVC, eval_val, eval_test = pred_eval_test(pca_SVC, clf_SVC, 
                 y_pred_SVC, y_prob_pred_SVC, clf_name='SVC')
 if 'KNN' in methods:
     print('\n================ 4. PCA + KNN ================')
-    pca_KNN, clf_KNN, y_pred_KNN, y_prob_pred_KNN = train_pca_clf(clf_KNN, pca_n)
+    pca_KNN, clf_KNN, y_pred_KNN, y_prob_pred_KNN \
+        = train_pca_clf(clf_KNN, pca_n, X_train, X_val, y_train, y_val,)
     y_test_pred_KNN, eval_val, eval_test = pred_eval_test(pca_KNN, clf_KNN, 
                 y_pred_KNN, y_prob_pred_KNN, clf_name='KNN')
 if 'KMeans' in methods:
     print('\n================ 5. PCA + KMeans ================')
-    pca_KMeans, clf_KMeans, y_pred_KMeans, reference_labels, predict_labels = train_pca_clf(clf_KMeans, pca_n, is_KMeans=True)
+    pca_KMeans, clf_KMeans, y_pred_KMeans, reference_labels, predict_labels \
+        = train_pca_clf(clf_KMeans, pca_n, X_train, X_val, y_train, y_val, is_KMeans=True, is_plot=True)
     y_test_pred_KMeans, eval_val, eval_test = pred_eval_test_KMeans(
         pca_KMeans, clf_KMeans, y_pred_KMeans, predict_labels
     )

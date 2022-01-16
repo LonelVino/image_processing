@@ -58,7 +58,8 @@ Please download the image data set and save it in the parent path of this projec
 python3 main/gene_process.py [-h] [-N [Number]] [-L [BOOLEAN]] [-OPth [Path]] [-SPth [Path]]
                        [-T [Type]]
 ```
-```
+
+```bash
 optional arguments:
   -h, --help            show this help message and exit
   -N [Number], --num [Number]
@@ -69,15 +70,40 @@ optional arguments:
                         Path of Original images
   -SPth [Path], --save_path [Path]
                         Path of images to save
+  -rT [Type], --ref_img_type [Type]
+                        Type of reference images to load
   -T [Type], --img_type [Type]
-                        Type of images to load
+                        Type of origin images to save / Type of images to save
 ```
 
 **<font color=red>For example:</font>**
 
-`python3 main/gene_process.py -N 500 -OPth appr/test/origin -SPth appr/test`
+- **Generate images from reference images (No transformed images)**:<br>
+   `python3 main/gene_process.py -N 500 -L n -OPth reference -SPth appr/ -rT png -T png`<br>
+   By running the command above, *500*transformed images will be generated based on the reference images, these transformed images be saved in a folder `appr/origin`. Then the processed images (binarized, contour, fft) will be generated based on the *500* transformed images and be saved in a folder `/appr/test`.
+- **Generate images from transformed images**:<br>
+   `python3 main/gene_process.py -N 500 -L y -OPth appr/origin -SPth appr/ -rT png -T png`<br>
+   By running the command above, *500*transformed images will be loaded from `appr/origin`. These images will be processed (binarization, contour extraction, fft), and processed images will be saved in a folder `/appr/`.
 
-By running the command above, *500* transformed images will be generated based on the reference images and be saved in a folder `appr/test/origin`. Then the processed images (binarized, contour, fft) will be generated based on the *500* transformed images and be saved in a folder `/appr/test`.
+
+### View images
+
+View all images in a folder as slides.
+```bash
+python3 main/view_img.py [-h] [-Pth [Path]] [-T [Type]]
+```
+
+```bash
+optional arguments:
+  -h, --help            show this help message and exit
+  -Pth [Path], --img_path [Path]
+                        Path of images
+  -T [Type], --img_type [Type]
+                        Type of images
+```
+**<font color=red>For example:</font>**
+
+`python3 main/view_img.py -Pth appr/fft -T png`
 
 
 ### Classify
@@ -88,14 +114,20 @@ python3 main/classify.py  [-h] [-M Methods [Methods ...]] [-N [Number]] [-PN [Nu
 ```
 
 ```
-Optional Arguments:
+optional arguments:
   -h, --help            show this help message and exit
   -M Methods [Methods ...], --methods Methods [Methods ...]
-                        Classifier (KMeans, KNN, SVM)
+                        Classifier
   -N [Number], --num [Number]
                         Number of Training Images
+  -RPth [Path], --train_img_path [Path]
+                        Path of Traininig images
+  -TPth [Path], --test_img_path [Path]
+                        Path of Test images
   -PN [Number], --pca_n [Number]
                         Number of PCA Components
+  -KN [Number], --kmeans_n [Number]
+                        Number of Kmeans Clusters
   -P [BOOLEAN], --pca [BOOLEAN]
                         Find Best Number of Components of PCA
   -K [BOOLEAN], --kmeans [BOOLEAN]
@@ -103,14 +135,14 @@ Optional Arguments:
                         (Expected Boolean Value:
                         'yes', 'true', 't', 'y', '1'
                         'no', 'false', 'f', 'n', '0')
+
 ```
 
 **<font color=red>For example:</font>**
 
+ `python3 main/classify.py -M KNN KMeans -RPth appr/fft -TPth test/fft -N 5000 -PN 18`
 
- `python3 main/classify.py -M KNN KMeans -N 5000 -P yes -K yes`
-
-By running the command above,   *5000* images will be used to train **KMeans** and **KNN** , and then to classify *500* test images, before finding the best number of components in **PCA** and best number of clusters in **KMeans**.
+By running the command above,   *5000* images in `appr/ftt` will be used to train **KMeans** and **KNN** based on  18 principal components, and then to classify *500* test images in `test/fft`.
 
 ## Performance
 
@@ -215,3 +247,6 @@ More classification information, please refer to: [Classification Report](assets
 6. Ayiah-Mensah, Francis, et al. "Recognition of augmented frontal face images using FFT-PCA/SVD algorithm." *Applied Computational Intelligence and Soft Computing* 2021 (2021).
 7. Molchanov, Vladimir, and Lars Linsen. "Overcoming the Curse of Dimensionality When Clustering Multivariate Volume Data." *VISIGRAPP (3: IVAPP)*. 2018.
 7. [Andrew Rosenberg and Julia Hirschberg, 2007. V-Measure: A conditional entropy-based external cluster evaluation measure](https://aclweb.org/anthology/D/D07/D07-1043.pdf)
+7. Martinsson, Per-Gunnar, Vladimir Rokhlin, and Mark Tygert. "A randomized algorithm for the decomposition of matrices." *Applied and Computational Harmonic Analysis* 30.1 (2011): 47-68.
+7. Halko, Nathan, Per-Gunnar Martinsson, and Joel A. Tropp. "Finding structure with randomness: Probabilistic algorithms for constructing approximate matrix decompositions arXiv [math. NA]." (2009).
+
