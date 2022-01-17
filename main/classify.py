@@ -240,8 +240,8 @@ def train_pca_clf(clf, pca_n, X_train, X_val, y_train, y_val, is_KMeans=False, i
         reference_labels = retrieve_info(y_pred, y_val.astype(int))  # cluster labels
         predict_labels = np.array(list(map(lambda x: reference_labels[x], y_pred)))  # true predict labels
         if is_plot:
-            visual_KMeans_3d(X_train_pca, predict_labels)
-            visual_KMeans_2d(X_train_pca)
+            visual_KMeans_3d(X_train_pca, predict_labels, n_classes)
+            visual_KMeans_2d(X_train_pca, n_classes)
         return pca, clf, y_pred, reference_labels, predict_labels
     else:   
         y_prob_pred = clf.predict_proba(X_val_pca)
@@ -263,7 +263,7 @@ def pred_eval_test(pca, clf, y_pred, y_prob_pred, clf_name='clf'):
     y_test_prob_pred = clf.predict_proba(data_test_pca)
     eval_test = Evaluate(target_test, y_test_pred, y_test_prob_pred,
                             n_classes_test, target_names_test, mode='TEST', clf_name=clf_name)
-    display_mis_images(target_test, y_test_pred, filenames_test, images_test_og, target_test_og, filenames_test_og)
+    # display_mis_images(target_test, y_test_pred, filenames_test, images_test_og, target_test_og, filenames_test_og)
     plt.show()
     return y_test_pred, eval_val, eval_test
 
@@ -278,7 +278,7 @@ def pred_eval_test_KMeans(pca_KMeans, clf_KMeans, y_pred_KMeans, predict_labels)
     reference_labels_test = retrieve_info(y_test_pred, target_test.astype(int))  # cluster labels
     predict_labels_test = np.array(list(map(lambda x: reference_labels_test[x], y_test_pred)))  # true predict labels
     eval_test = evaluate_KMeans(target_test, y_test_pred, predict_labels_test, target_names, mode='TEST')
-    display_mis_images(target_test, predict_labels_test, filenames_test, images_test_og, target_test_og, filenames_test_og)
+    # display_mis_images(target_test, predict_labels_test, filenames_test, images_test_og, target_test_og, filenames_test_og)
     plt.show()
     return y_test_pred, eval_val, eval_test
 

@@ -12,7 +12,7 @@ def remove_outlier(train_set, labels, is_plot=False):
 
     if is_plot:
         plt.figure(figsize=(8,16))
-        plt.suptitle('Upper 2 rows - with outliers; \n Lower 2 rows - after removing)', fontsize=20)
+        plt.suptitle('Upper 2 rows - with outliers \n Lower 2 rows - after removing', fontsize=20)
         ax1 = plt.subplot(421); ax1=sns.boxplot(train_set[:,0])
         ax2 = plt.subplot(422); ax2=sns.boxplot(train_set[:,1])
         ax3 = plt.subplot(423); ax3=sns.distplot(train_set[:,0])

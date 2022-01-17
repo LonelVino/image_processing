@@ -80,7 +80,7 @@ def display_mis_images(target_test, y_val_pred, filenames_test, images_test_og, 
         if count==len_images-1:
             break
 
-def visual_KMeans_3d(data_test_pca, predict_labels_test):
+def visual_KMeans_3d(data_test_pca, predict_labels_test, n_classes):
     '''
     Visualize 3d plots (3 PCA components)
     '''
@@ -93,7 +93,7 @@ def visual_KMeans_3d(data_test_pca, predict_labels_test):
         ax = fig.add_subplot(1,2,idx+1, projection='3d')
         ax.view_init(elev=ii, azim=ii)
 
-        for label, color in zip(range(1, 7), colors):
+        for label, color in zip(range(1,n_classes), colors):
             idxes = np.where([np.array(predict_labels_test)==label])[1]
             cluster = np.array([data_test_pca[idx] for idx in idxes])
             ax.scatter(xs=cluster[:,0], ys=cluster[:,1], zs=cluster[:,2],
@@ -104,10 +104,10 @@ def visual_KMeans_3d(data_test_pca, predict_labels_test):
     plt.legend()
     
     
-def visual_KMeans_2d(data_test_pca):
+def visual_KMeans_2d(data_test_pca, n_classes):
     data = data_test_pca[:, 0:2]
     reduced_data = PCA(n_components=2).fit_transform(data)
-    kmeans = KMeans(init="k-means++", n_clusters=6, n_init=4)
+    kmeans = KMeans(init="k-means++", n_clusters=n_classes, n_init=4)
     kmeans.fit(reduced_data)
 
     # Create color maps

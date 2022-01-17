@@ -4,12 +4,14 @@ import os
 import pickle
 import cv2
 from tqdm import tqdm
+import numpy as np
 
 from image_process import image_random_transform
 from dataset import load_dataset
 from utlis import load_dir_images
 
-def gene_train_images(ref='reference', train='appr/origin', type_image_ref='bmp', type_image_train='png', N=100):
+def gene_train_images(ref='reference', train='appr/origin',\
+                type_image_ref='bmp', type_image_train='png', N=100, gene_dataset=True):
     '''
     Generate N training images based on all the reference images by selecting randomly
     Generate a TXT file recording labels related to each image file name 
@@ -58,12 +60,18 @@ def gene_train_images(ref='reference', train='appr/origin', type_image_ref='bmp'
     pickle.dump(labels, a_file)
     a_file.close()
         
-    print('[INFO] Generating Dataset....... (This may take a while. Have a Coffee)')
-    dataset = load_dataset(images, labels)
-    return dataset 
+    if gene_dataset:
+        print('[INFO] Generating Dataset....... (This may take a while. Have a Coffee)')
+        dataset = load_dataset(images, labels)
+        return dataset 
+    else:
+        filenames = np.array(list(images.keys()))
+        data_images = np.array(list(images.values()))
+        return filenames, data_images
 
 
-def load_files_to_dataset(img_path='appr/origin',  type_image_train='png', label_path='appr/origin', label_filename='labels.pkl', max_num=None):
+def load_files_to_dataset(img_path='appr/origin',  type_image_train='png',\
+            label_path='appr/origin', label_filename='labels.pkl', max_num=None, gene_dataset=True):
     print('[INFO] Loading Resource Files....... ')
     labels_file = open('{:s}/{:s}'.format(label_path, label_filename), "rb")
     labels = pickle.load(labels_file)
@@ -71,10 +79,15 @@ def load_files_to_dataset(img_path='appr/origin',  type_image_train='png', label
     slice_keys = [w[-14:] for w in list(images.keys())]
     new_images = dict(zip(slice_keys, list(images.values())))
     
-    print('[INFO] Generating Dataset.......')
-    dataset = load_dataset(new_images, labels)
-    print('[INFO] Loading Done!')
-    return dataset
+    if gene_dataset:
+        print('[INFO] Generating Dataset.......')
+        dataset = load_dataset(new_images, labels)
+        print('[INFO] Loading Done!')
+        return dataset
+    else:
+        filenames = np.array(list(new_images.keys()))
+        data_images = np.array(list(new_images.values()))
+        return filenames, data_images
 
 if __name__ == '__main__':
     dataset = gene_train_images()

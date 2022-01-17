@@ -63,7 +63,7 @@ python3 main/gene_process.py [-h] [-N [Number]] [-L [BOOLEAN]] [-OPth [Path]] [-
 optional arguments:
   -h, --help            show this help message and exit
   -N [Number], --num [Number]
-                        Number of Generated Images
+                        Number of Generated Images (Only required when generating images)
   -L [BOOLEAN], --is_load [BOOLEAN]
                         Load original images from folder
   -OPth [Path], --img_path [Path]
@@ -74,16 +74,19 @@ optional arguments:
                         Type of reference images to load
   -T [Type], --img_type [Type]
                         Type of origin images to save / Type of images to save
+  -DS [BOOLEAN], --gene_dataset [BOOLEAN]
+                        Generate Dataset when loading images
 ```
 
 **<font color=red>For example:</font>**
 
 - **Generate images from reference images (No transformed images)**:<br>
-   `python3 main/gene_process.py -N 500 -L n -OPth reference -SPth appr/ -rT png -T png`<br>
+   `python3 main/gene_process.py -N 500 -L n -OPth reference -SPth appr -rT png -T png -DS n`<br>
    By running the command above, *500*transformed images will be generated based on the reference images, these transformed images be saved in a folder `appr/origin`. Then the processed images (binarized, contour, fft) will be generated based on the *500* transformed images and be saved in a folder `/appr/test`.
+   > If just generate transformed images, not process the images, please add an argument `-P n`, i.e. `python3 main/gene_process.py -N 500 -L n -OPth reference -SPth appr -rT png -T png -DS n -P n`
 - **Generate images from transformed images**:<br>
-   `python3 main/gene_process.py -N 500 -L y -OPth appr/origin -SPth appr/ -rT png -T png`<br>
-   By running the command above, *500*transformed images will be loaded from `appr/origin`. These images will be processed (binarization, contour extraction, fft), and processed images will be saved in a folder `/appr/`.
+   `python3 main/gene_process.py -L y -OPth appr/origin -SPth appr -rT png -T png -DS n`<br>
+   By running the command above, all transformed images will be loaded from `appr/origin`. These images will be processed (binarization, contour extraction, fft), and processed images will be saved in a folder `/appr/`.
 
 
 ### View images
